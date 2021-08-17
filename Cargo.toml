@@ -18,8 +18,9 @@ egui = "*"
 eframe = { git = "https://github.com/emilk/egui", branch = "master" }
 serde = { version = "1", features = ["derive"], optional = true }
 
-#egui_design =   { git = "https://github.com/OElabs-official/egui_design"}
 egui_design = {path = "/home/akitsuki/文档/code-x/rust/core_utils/egui_design"}
+#egui_design =   { git = "https://github.com/OElabs-official/egui_design"}
+
 #orbtk = { git ="https://github.com/redox-os/orbtk.git", branch= "develop" }
 #[features]
 #debug = ["orbtk/debug"]

@@ -6,7 +6,7 @@ use
     crate::*,
     crate::dataprocess::Video,
     egui_design::*,
-    chrono::prelude as CP
+    chrono::prelude as CP,
 };
 
 #[cfg_attr(feature = "persistence", derive(serde::Deserialize, serde::Serialize))]
@@ -15,7 +15,7 @@ pub struct Gui //必须有输入，所有不需要默认值
 {
     dataset : Arc<Mutex<DataSet>>,
     setting : Arc<Mutex<Setting>>,
-    dataset_cache : Vec<Video>
+    dataset_cache : Vec<Video>,
 }
 impl Gui
 {
@@ -40,6 +40,9 @@ impl epi::App for Gui
     fn setup(&mut self, ctx: &egui::CtxRef, _frame: &mut epi::Frame<'_>, _storage: Option<&dyn epi::Storage>) 
     {
         oelabs_design(ctx);
+
+
+
     }
     #[cfg(feature = "persistence")]
     fn load(&mut self, storage: &dyn epi::Storage) 
@@ -92,50 +95,51 @@ impl epi::App for Gui
         });
 
         egui::CentralPanel::default().show
-        (ctx, |ui|{
+        (ctx, |ui|
+            {
+                let text_style = TextStyle::Body;
+                let row_height = ui.fonts()[text_style].row_height();
+                let num_rows = self.dataset_cache.len(); 
 
-            let text_style = TextStyle::Body;
-            let row_height = ui.fonts()[text_style].row_height();
-            let num_rows = self.dataset_cache.len(); 
+                ui.horizontal //水平布局
+                (|ui| {
+                    ui.selectable_value
+                    (
+                        &mut 3, 
+                        0, 
+                        "显示全部"
+                    );
+                    ui.selectable_value
+                    (
+                        &mut 4,
+                        1,
+                        "按时间顺序显示",
+                    );
+                    ui.selectable_value
+                    (
+                        &mut 5,
+                        2,
+                        "分类",
+                    );
+                });
 
-            ui.horizontal //水平布局
-            (|ui| {
-                ui.selectable_value
-                (
-                    &mut 3, 
-                    0, 
-                    "显示全部"
-                );
-                ui.selectable_value
-                (
-                    &mut 4,
-                    1,
-                    "按时间顺序显示",
-                );
-                ui.selectable_value
-                (
-                    &mut 5,
-                    2,
-                    "分类",
-                );
-            });
+                ui.label(format!("time : {}",current_time));
 
-            ui.label(format!("time : {}",current_time));
+                ui.add_space(5.0);
+                
+                ScrollArea::auto_sized().show_rows
+                (ui, row_height, num_rows, |ui, row_range| {
+                    for row in row_range 
+                    {
+                        let (dspl,url)=self.dataset_cache[row].format();
+                        let hl = egui::Hyperlink::new(url).text(dspl);
+                        ui.add(hl);
 
-            ui.add_space(5.0);
-            
-            ScrollArea::auto_sized().show_rows
-            (ui, row_height, num_rows, |ui, row_range| {
-                for row in row_range 
-                {
-                    let (dspl,url)=self.dataset_cache[row].format();
-                    let hl = egui::Hyperlink::new(url).text(dspl);
-                    ui.add(hl);
-
-                }
-            });
-            ui.add_space(5.0);
-        });
+                    }
+                });
+                ui.add_space(5.0);
+            }
+        );
     }
 } 
 
